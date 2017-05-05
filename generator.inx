@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- inkscape-extension xmlns="http://www.inkscape.org/namespace/inkscape/extension" -->
+<inkscape-extension>
+
+  <_name>Generator</_name>
+  <id>generator.aurium.colivre.coop.br</id>
+
+  <dependency type="executable" location="extensions">generator.sh</dependency>
+
+  <param name="tab" type="notebook">
+    <page name="tabA" _gui-text="Configuration">
+
+  <param name="var-type" type="enum" _gui-text="Collect values by:">
+    <_item value="column">column position</_item>
+    <_item value="name">column name</_item>
+  </param>
+
+  <param name="sep" type="description">•••••••••••••••••••••••••••••••••••••••••••••••••••••••••</param>
+
+  <_param name="info1" type="description">Extra textual values to be replaced:</_param>
+  <param name="extra-vars" type="string" gui-text=" "></param>
+
+  <param name="sep" type="description">•••••••••••••••••••••••••••••••••••••••••••••••••••••••••</param>
+
+  <param name="data-file" type="string" _gui-text="Data file:"></param>
+  <_param name="extraVarInfo" type="description">The data file must be a CSV with comma separated columns</_param>
+
+  <param name="sep" type="description">•••••••••••••••••••••••••••••••••••••••••••••••••••••••••</param>
+
+  <param name="format" type="enum" _gui-text="Exportation format:">
+    <item>PDF</item>
+    <item>SVG</item>
+    <item>PS</item>
+    <item>EPS</item>
+    <item>PNG</item>
+    <item>JPG</item>
+  </param>
+  <param name="dpi" type="string" _gui-text="DPI (for PNG and JPG):">90</param>
+  <param name="output" type="string" _gui-text="Output pattern:">$HOME/generator-output/%VAR_1%.pdf</param>
+  <param name="preview" type="boolean" _gui-text="Preview (make and show only the frist register):"></param>
+
+    </page>
+    <page name="tabB" _gui-text="Help">
+
+  <_param name="helpTxt" type="description">
+  How vars are replaced?
+
+  The replacer will walk in each data column, line-by-line, and will try to replace the %VAR_#% in the SVG by the column value.
+  If you select "column position", # is the column number.
+  If you select "column name", # is the column name, defined in the first line.
+
+  I can replace other text paterns, like element values?
+
+  Yes. On the second field, add all extra text to be replaced in a line separated by "|", pointing to the replacer column with "=>" (name or number depending on the choice up). Do not use spaces if that is not part of the blocks!
+  For example, we can make the red and green colors as variables to be replaced by some other colors form the database at the columns "secure color" and "sector color":
+  #ff0000=>secure_color|#00ff00=>sector_color
+  All pure red and pure green elementes will have new colors for each data line.
+
+  If you are not sure about the usable variables, run it on preview mode and the replaceable texts wil be showed to you.
+  </_param>
+
+    </page>
+  </param>
+
+  <effect>
+    <object-type>all</object-type>
+    <effects-menu>
+      <submenu _name="Misc"/>
+    </effects-menu>
+  </effect>
+
+  <script>
+      <command reldir="extensions">generator.sh</command>
+  </script>
+
+</inkscape-extension>
