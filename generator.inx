@@ -28,12 +28,12 @@
   <param name="sep" type="description">•••••••••••••••••••••••••••••••••••••••••••••••••••••••••</param>
 
   <param name="format" type="enum" _gui-text="Exportation format:">
-    <item>PDF</item>
-    <item>SVG</item>
-    <item>PS</item>
-    <item>EPS</item>
-    <item>PNG</item>
-    <item>JPG</item>
+    <item value="PDF">PDF</item>
+    <item value="SVG">SVG</item>
+    <item value="PS">PS</item>
+    <item value="EPS">EPS</item>
+    <item value="PNG">PNG</item>
+    <item value="JPG">JPG</item>
   </param>
   <param name="dpi" type="string" _gui-text="DPI (for PNG and JPG):">90</param>
   <param name="output" type="string" _gui-text="Output pattern:">$HOME/generator-output/%VAR_1%.pdf</param>
