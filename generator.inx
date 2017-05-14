@@ -10,7 +10,7 @@
   <param name="tab" type="notebook">
     <page name="tabA" _gui-text="Configuration">
 
-  <param name="var-type" type="enum" _gui-text="Collect values by:">
+  <param name="vartype" type="enum" _gui-text="Collect values by:">
     <_item value="column">column position</_item>
     <_item value="name">column name</_item>
   </param>
@@ -18,11 +18,11 @@
   <param name="sep" type="description">•••••••••••••••••••••••••••••••••••••••••••••••••••••••••</param>
 
   <_param name="info1" type="description">Extra textual values to be replaced:</_param>
-  <param name="extra-vars" type="string" gui-text=" "></param>
+  <param name="extravars" type="string" gui-text=" "></param>
 
   <param name="sep" type="description">•••••••••••••••••••••••••••••••••••••••••••••••••••••••••</param>
 
-  <param name="data-file" type="string" _gui-text="Data file:"></param>
+  <param name="datafile" type="string" _gui-text="Data file:"></param>
   <_param name="extraVarInfo" type="description">The data file must be a CSV with comma separated columns</_param>
 
   <param name="sep" type="description">•••••••••••••••••••••••••••••••••••••••••••••••••••••••••</param>
@@ -70,7 +70,7 @@
   </effect>
 
   <script>
-      <command reldir="extensions">generator.sh</command>
+      <command reldir="extensions" interpreter="python">generator.py</command>
   </script>
 
 </inkscape-extension>
