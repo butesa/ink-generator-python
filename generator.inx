@@ -62,10 +62,10 @@
     </page>
   </param>
 
-  <effect>
+  <effect needs-live-preview="false" needs-document="true">
     <object-type>all</object-type>
     <effects-menu>
-      <submenu _name="Misc"/>
+      <submenu _name="Export"/>
     </effects-menu>
   </effect>
 
