@@ -5,7 +5,7 @@
   <_name>Generator</_name>
   <id>generator.aurium.colivre.coop.br</id>
 
-  <dependency type="executable" location="extensions">generator.sh</dependency>
+  <dependency type="executable" location="extensions">generator.py</dependency>
 
   <param name="tab" type="notebook">
     <page name="tabA" _gui-text="Configuration">

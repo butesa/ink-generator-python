@@ -142,7 +142,7 @@ def Prepare_data(data_old):
 
 def Open_file_viewer(filename):
     if platform.system() == 'Windows':
-        Call_no_output([filename])
+        os.startfile(filename)
     elif Is_executable('xdg-open'):
         Call_no_output(['xdg-open', filename])
     else:
