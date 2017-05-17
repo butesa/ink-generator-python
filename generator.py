@@ -27,6 +27,7 @@ import tempfile
 import shutil
 import argparse
 import csv
+import ctypes
 
 
 class SimpleObject:
@@ -37,7 +38,120 @@ class MyArgumentParser(argparse.ArgumentParser):
     def error(self, message):
         # use "argument" instead of "--argument"
         message = message.replace(' --', ' ')
-        Die('Argument error', message)
+        Show_error_and_exit('Argument error', message)
+
+
+def Is_executable(filename):
+    return distutils.spawn.find_executable(filename) is not None
+
+
+if platform.system() != 'Windows' and Is_executable('zenity'):
+    class ProgressBar():
+        def __init__(self, title, text):
+            self.__title = title
+            self.__text = text
+            self.__active = False
+
+        def __enter__(self):
+            self.__devnull = open(os.devnull, 'w')
+            self.__proc = subprocess.Popen(
+                [
+                    'zenity',
+                    '--progress',
+                    '--title={0}'.format(self.__title),
+                    '--text={0}'.format(self.__text),
+                    '--auto-close',
+                    '--width=400'
+                ], stdin=subprocess.PIPE, stdout=self.__devnull,
+                stderr=self.__devnull)
+            self.__active = True
+            return self
+
+        def __exit__(self, *args):
+            if self.__active:
+                self.__close()
+
+        def Set_percent(self, p):
+            if self.is_active:
+                self.__proc.stdin.write(str(p) + '\n')
+
+        @property
+        def is_active(self):
+            if self.__active and self.__proc.poll() is not None:
+                self.__close()
+            return self.__active
+
+        def __close(self):
+            if not self.__proc.stdin.closed:
+                self.__proc.stdin.close()
+            if not self.__devnull.closed:
+                self.__devnull.close()
+            self.__active = False
+else:
+    class ProgressBar():
+        def __init__(self, title, text):
+            pass
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            pass
+
+        def Set_percent(self, p):
+            pass
+
+        @property
+        def is_active(self):
+            return True
+
+
+if platform.system() == 'Windows':
+    def Show_info(title, message):
+        MB_ICONINFORMATION = 0x40
+        ctypes.windll.user32.MessageBoxA(0, message, title, MB_ICONINFORMATION)
+
+    def Show_question(title, message):
+        MB_ICONQUESTION = 0x20
+        MB_YESNO = 0x4
+        IDYES = 6
+        return ctypes.windll.user32.MessageBoxA(
+            0, message, title, MB_ICONQUESTION | MB_YESNO) == IDYES
+
+    def Show_error_and_exit(title, message):
+        MB_ICONERROR = 0x10
+        ctypes.windll.user32.MessageBoxA(0, message, title, MB_ICONERROR)
+        sys.exit(1)
+
+elif Is_executable('zenity'):
+    def Show_info(title, message):
+        Zenity('info', title, message)
+
+    def Show_question(title, message):
+        return Zenity('question', title, message) == 0
+
+    def Show_error_and_exit(title, message):
+        Zenity('error', title, message)
+        sys.exit(1)
+
+    def Zenity(mode, title, message):
+        return Call_no_output(
+            [
+                'zenity',
+                '--{0}'.format(mode),
+                '--title={0}'.format(title),
+                '--text={0}'.format(message)
+            ])
+else:
+    def Show_info(title, message):
+        pass
+
+    def Show_question(title, message):
+        return None
+
+    def Show_error_and_exit(title, message):
+        sys.stderr.write(title + '\n' + message + '\n')
+        sys.exit(1)
 
 
 def Get_command_line_arguments():
@@ -59,8 +173,11 @@ def Get_command_line_arguments():
     parser.add_argument(
         '--output', required=True, help='Output pattern')
     parser.add_argument(
-        '--preview', choices=['TRUE', 'FALSE'], default='TRUE', type=str.upper,
+        '--preview', choices=['TRUE', 'FALSE'], default='FALSE', type=str.upper,
         help='Preview (only first page)')
+    parser.add_argument(
+        '--specialchars', choices=['TRUE', 'FALSE'], default='TRUE', type=str.upper,
+        help='Handle special XML characters')
     parser.add_argument('infile', help='SVG input file')
 
     args = parser.parse_known_args()[0]
@@ -85,7 +202,7 @@ def Generate(replacements):
     elif globaldata.args.format == 'JPG':
         tmp_png = os.path.join(globaldata.tempdir, 'temp.png')
         Ink_render(tmp_svg, tmp_png, 'PNG')
-        Imagemagick_convert(tmp_png, 'JPG:' + destfile)
+        Png_to_jpg(tmp_png, destfile)
     else:
         Ink_render(tmp_svg, destfile, globaldata.args.format)
 
@@ -105,14 +222,22 @@ def Ink_render(infile, outfile, format):
         'Inkscape Converting Error')
 
 
-def Imagemagick_convert(filefrom, fileto):
-    Call_or_die(
-        [
-            'convert',
-            filefrom,
-            fileto
-        ],
-        'ImageMagick Converting Error')
+def Png_to_jpg(pngfile, jpgfile):
+    if platform.system() == 'Windows':
+        Show_error_and_exit(
+            'JPG Export', 'JPG Export is not available on Windows.')
+    elif Is_executable('convert'):
+        Call_or_die(
+            [
+                'convert',
+                'PNG:' + pngfile,
+                'JPG:' + jpgfile
+            ],
+            'ImageMagick Converting Error')
+    else:
+        Show_error_and_exit(
+            'JPG export', 'JPG export is not available because '
+            'Image Magick is not installed.')
 
 
 def Prepare_data(data_old):
@@ -128,11 +253,19 @@ def Prepare_data(data_old):
         for key, value in row:
             if key == '':
                 continue
+            if globaldata.args.specialchars == 'TRUE':
+                value = value.replace('&', '&amp;')
+                value = value.replace('<', '&lt;')
+                value = value.replace('>', '&gt;')
+                value = value.replace('"', '&quot;')
+                value = value.replace("'", '&apos;')
             row_new.append(('%VAR_'+key+'%', value))
             for search_replace in extra_value_info:
                 if len(search_replace) != 2:
-                    Die('Extra vars error', 'There is something wrong with '
-                        'your extra vars parameter')
+                    Show_error_and_exit(
+                        'Extra vars error',
+                        'There is something wrong with your extra vars '
+                        'parameter')
                 if search_replace[1] == key:
                     row_new.append((search_replace[0], value))
         data_new.append(row_new)
@@ -146,44 +279,21 @@ def Open_file_viewer(filename):
     elif Is_executable('xdg-open'):
         Call_no_output(['xdg-open', filename])
     else:
-        Die('No preview', 'Preview is not available because "xdg-open" is not '
-            'installed.')
-
-
-def Is_executable(filename):
-    return distutils.spawn.find_executable(filename) is not None
-
-
-def Popen_no_output(args):
-    return subprocess.Popen(
-        args, stdin=subprocess.PIPE, stdout=globaldata.devnull,
-        stderr=globaldata.devnull)
+        Show_error_and_exit(
+            'No preview', 'Preview is not available because '
+            '"xdg-open" is not installed.')
 
 
 def Call_no_output(args):
-    return subprocess.call(
-        args, stdout=globaldata.devnull, stderr=globaldata.devnull)
+    with open(os.devnull, 'w') as devnull:
+        return subprocess.call(args, stdout=devnull, stderr=devnull)
 
 
 def Call_or_die(args, error_title):
     try:
         subprocess.check_output(args, stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as error:
-        Die(error_title, error.output)
-
-
-def Die(title, message):
-    if globaldata.use_zenity:
-        Call_no_output(
-            [
-                'zenity',
-                '--error',
-                '--title={0}'.format(title),
-                '--text={0}'.format(message)
-            ])
-    else:
-        sys.stderr.write(title + '\n' + message + '\n')
-    sys.exit(1)
+        Show_error_and_exit(error_title, error.output)
 
 
 def Process_csv_file(csvfile):
@@ -197,73 +307,47 @@ def Process_csv_file(csvfile):
 
     count = sum(1 for i in csvdata)
     if count == 0:
-        Die('Empty CSV file', 'There are no data sets in your CSV file.')
+        Show_error_and_exit(
+            'Empty CSV file', 'There are no data sets in your CSV file.')
 
     if globaldata.args.preview == 'TRUE':
         for row in csvdata:
-            if globaldata.use_zenity:
-                varlist = '\n'.join(
-                    [key for key, value in row])
-
-                Call_no_output(
-                    [
-                        'zenity',
-                        '--info',
-                        '--title=Generator Variables',
-                        '--text=The replaceable text, based on your '
-                        'configuration and on the CSV '
-                        'are:\n{0}'.format(varlist)
-                    ])
+            varlist = '\n'.join(
+                [key for key, value in row])
+            Show_info(
+                'Generator Variables',
+                'The replaceable text, based on your configuration and on '
+                'the CSV are:\n{0}'.format(varlist))
 
             new_file = Generate(row)
             Open_file_viewer(new_file)
             break
     else:  # no preview
-        if globaldata.use_zenity:
-            zenity = Popen_no_output(
-                [
-                    'zenity',
-                    '--progress',
-                    '--title=Generator',
-                    '--text=Generating...',
-                    '--auto-close',
-                    '--width=400'
-                ])
-
+        with ProgressBar('Generator', 'Generating...') as progress:
             for num, row in enumerate(csvdata, start=1):
                 Generate(row)
-                if zenity.poll() is not None:
+                if not progress.is_active:
                     break
-                zenity.stdin.write(str(num * 100 / count) + '\n')
-            zenity.stdin.close()
-        else:
-            for num, row in enumerate(csvdata, start=1):
-                Generate(row)
+                progress.Set_percent(num * 100 / count)
 
 
 try:
     globaldata = SimpleObject()
-    globaldata.use_zenity = Is_executable('zenity')
-    globaldata.devnull = open(os.devnull, 'w')
     globaldata.args = Get_command_line_arguments()
     globaldata.tempdir = tempfile.mkdtemp()
 
     if not os.path.isfile(globaldata.args.datafile):
-        Die('File not found', 'The CSV file "{0}" does not exist.'.format(
-            globaldata.args.datafile))
+        Show_error_and_exit(
+            'File not found', 'The CSV file "{0}" does not '
+            'exist.'.format(globaldata.args.datafile))
 
     if (not os.path.splitext(globaldata.args.output)[1][1:].upper() ==
-            globaldata.args.format) and globaldata.use_zenity:
-        result = Call_no_output(
-            [
-                'zenity',
-                '--question',
-                '--title=Output file extension',
-                '--text=Your output pattern has a file extension '
+            globaldata.args.format):
+        if Show_question(
+                'Output file extension',
+                'Your output pattern has a file extension '
                 'diferent from the export format.\n\nDo you want to '
-                'add the file extension?'
-            ])
-        if result == 0:
+                'add the file extension?'):
             globaldata.args.output += '.' + \
                 globaldata.args.format.lower()
 
@@ -278,12 +362,4 @@ try:
         Process_csv_file(csvfile)
 
 finally:
-    try:
-        globaldata.devnull.close()
-    except:
-        pass
-
-    try:
-        shutil.rmtree(globaldata.tempdir)
-    except:
-        pass
+    shutil.rmtree(globaldata.tempdir)

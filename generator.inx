@@ -27,6 +27,7 @@
 
   <param name="sep" type="description">•••••••••••••••••••••••••••••••••••••••••••••••••••••••••</param>
 
+  <param name="specialchars" type="boolean" _gui-text="Handle special XML characters">true</param>
   <param name="format" type="enum" _gui-text="Exportation format:">
     <item value="PDF">PDF</item>
     <item value="SVG">SVG</item>
@@ -37,7 +38,7 @@
   </param>
   <param name="dpi" type="string" _gui-text="DPI (for PNG and JPG):">90</param>
   <param name="output" type="string" _gui-text="Output pattern:">$HOME/generator-output/%VAR_1%.pdf</param>
-  <param name="preview" type="boolean" _gui-text="Preview (make and show only the frist register):"></param>
+  <param name="preview" type="boolean" _gui-text="Preview (make and show only the frist register)"></param>
 
     </page>
     <page name="tabB" _gui-text="Help">
@@ -48,12 +49,13 @@
   The replacer will walk in each data column, line-by-line, and will try to replace the %VAR_#% in the SVG by the column value.
   If you select "column position", # is the column number.
   If you select "column name", # is the column name, defined in the first line.
+  If you enable the handling of special characters, characters like &amp; are replaced with entities like &amp;amp; as required by the SVG standard. In most cases, you should enable this option.
 
   I can replace other text paterns, like element values?
 
   Yes. On the second field, add all extra text to be replaced in a line separated by "|", pointing to the replacer column with "=>" (name or number depending on the choice up). Do not use spaces if that is not part of the blocks!
-  For example, we can make the red and green colors as variables to be replaced by some other colors form the database at the columns "secure color" and "sector color":
-  #ff0000=>secure_color|#00ff00=>sector_color
+  For example, we can make the red and green colors as variables to be replaced by some other colors from the database at the columns "secure color" and "sector color":
+  #ff0000=>secure color|#00ff00=>sector color
   All pure red and pure green elementes will have new colors for each data line.
 
   If you are not sure about the usable variables, run it on preview mode and the replaceable texts wil be showed to you.
