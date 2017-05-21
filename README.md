@@ -11,7 +11,7 @@ implemented as a bash script and uses commands like `head` or `sed`. The new
 implementation is done in Python and uses only standard features of Python and
 Windows.
 * The original extension has problems with correct parsing of CSV files when it
-comes to characters like "`,`" or "`"`".
+comes to characters like `,` or `"`.
 
 #Installation
 
@@ -32,7 +32,7 @@ The following is **NOT** available on Windows:
 
 If you want JPEG output, you can install ImageMagick and modify the
 `Png_to_jpg` function in `generator.py` as follows (replace
-"`Path\to\convert.exe`" with the correct path to the `convert` executable):
+`Path\to\convert.exe` with the correct path to the `convert` executable):
 
 ```python
 def Png_to_jpg(pngfile, jpgfile):
@@ -65,17 +65,17 @@ Some details of the usage of this extension differ from the usage of the
 original extension:
 
 * In the Bash-based extension, you had to escape certain characters in your CSV
-file. For example, you had to write "`\\\\&amp;`" to get a "`&`". With this
-extension, you need to write simply "`&`" (with handling of special characters
-enabled) or "`&amp;`" (with handling of special characters disabled).
+file. For example, you had to write `\\\\&amp;` to get a `&`. With this
+extension, you need to write simply `&` (with handling of special characters
+enabled) or `&amp;` (with handling of special characters disabled).
 
-* In the Bash-based extension, the characters "`[`", "`]`", "`   `", "`$`", "`'`"
-and "`"`" were replaced by an underscore if they appear in a column name. For
+* In the Bash-based extension, the characters `[`, `]`, `   `, `$`, `'`
+and `"` were replaced by an underscore if they appear in a column name. For
 example, when you have a column named "first name", you had to use
-"`%VAR_first_name%`" as placeholder. With this extension, no such replacement
-occures. Your have to use the placeholder "`%VAR_first name`".
+`%VAR_first_name%` as placeholder. With this extension, no such replacement
+occures. Your have to use the placeholder `%VAR_first name`.
 
 * This one is only important if you used `generator.sh` not as an inkscape
 extension, but called it directly: In the bash script, there were some parameters
-with a dash (i.e. "`--data-file`"). In this python script, there are no dashes
-in the parameters (i.e. "`--datafile`").
+with a dash (i.e. `--data-file`). In this python script, there are no dashes
+in the parameters (i.e. `--datafile`).

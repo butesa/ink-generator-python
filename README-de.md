@@ -9,7 +9,7 @@ Ich habe diese Neuimplementierung aus zwei Gründen vorgenommen:
 genutzt werden, weil sie als Bash-Script geschrieben ist und Befehle wie `head`
 oder `sed` verwendet. Diese neue Implementierung ist in Python geschrieben und
 verwendet nur Standardfunktionen von Python und Windows.
-* Die ursprüngliche Erweiterung hat bei Schriftzeichen wie "`,`" oder "`"`"
+* Die ursprüngliche Erweiterung hat bei Schriftzeichen wie `,` oder `"`
 Probleme mit dem Parsen von CSV-Dateien.
 
 #Installation
@@ -32,7 +32,7 @@ Folgendes ist unter Windows **NICHT** verfügbar:
 
 Wenn Sie die JPEG-Ausgabe benötigen, können Sie ImageMagick installieren und die
 Funktion `Png_to_jpg` in der Datei `generator.py` wie folgt anpassen (ersetzen
-Sie "`Path\to\convert.exe`" mit dem richtigen Pfad von `convert.exe`):
+Sie `Path\to\convert.exe` mit dem richtigen Pfad von `convert.exe`):
 
 ```python
 def Png_to_jpg(pngfile, jpgfile):
@@ -67,18 +67,18 @@ Einige Details in der Benutzung dieser Erweiterung unterscheiden sich von der
 Benutzung der ursprünglichen Erweiterung:
 
 * In der Bash-basierten Erweiterung mussten bestimmte Zeichen in der CSV-Datei
-maskiert werden. Zum Beispiel musste "`\\\\&amp;`" notiert werden, um das
-Zeichen "`&`" zu erhalten. In dieser Erweiterung muss "`&`"
-(wenn die Berücksichtigung von Sonderzeichen aktiviert ist) oder "`&amp;`"
+maskiert werden. Zum Beispiel musste `\\\\&amp;` notiert werden, um das
+Zeichen `&` zu erhalten. In dieser Erweiterung muss `&`
+(wenn die Berücksichtigung von Sonderzeichen aktiviert ist) oder `&amp;`
 (wenn die Berücksichtigung von Sonderzeichen nicht aktiviert ist) notiert
 werden.
 
-* In der Bash-basierten Erweiterung wurden die Zeichen "`[`", "`]`", "`   `",
-"`$`", "`'`" und "`"`" durch einen Unterstrich ersetzt, wenn sie in einem
+* In der Bash-basierten Erweiterung wurden die Zeichen `[`, `]`, `   `,
+`$`, `'` und `"` durch einen Unterstrich ersetzt, wenn sie in einem
 Spaltennamen auftraten. Zum Beispiel musste für eine Spalte mit dem Namen
-"erster Name" der Platzhalter "`%VAR_erster_Name%` verwendet werden. Mit dieser
+"erster Name" der Platzhalter `%VAR_erster_Name%` verwendet werden. Mit dieser
 Erweiterung findet keine solche Ersetzung statt. Es muss der Platzhalter
-"`%VAR_erster Name%` verwendet werden.
+`%VAR_erster Name%` verwendet werden.
 
 * Diese Änderungen ist nur von Bedeutung, wenn `generator.sh` nicht als
 Inkscape-Erweiterung genutzt, sondern direkt aufgerufen wurde: Im Bash-Script
