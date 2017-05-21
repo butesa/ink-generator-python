@@ -13,9 +13,9 @@ Windows.
 * The original extension has problems with correct parsing of CSV files when it
 comes to characters like `,` or `"`.
 
-#Installation
+# Installation
 
-##Windows
+## Windows
 
 Copy `generator.inx` and `generator.py` to
 `C:\Program files\Inkscape\share\extensions`
@@ -45,7 +45,7 @@ def Png_to_jpg(pngfile, jpgfile):
         'ImageMagick Converting Error')
 ```
 
-##GNU/Linux
+## GNU/Linux
 
 Copy `generator.inx` and `generator.py` to
 `/usr/share/inkscape/extensions`

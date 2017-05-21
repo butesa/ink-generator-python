@@ -12,9 +12,9 @@ verwendet nur Standardfunktionen von Python und Windows.
 * Die ursprüngliche Erweiterung hat bei Schriftzeichen wie `,` oder `"`
 Probleme mit dem Parsen von CSV-Dateien.
 
-#Installation
+# Installation
 
-##Windows
+## Windows
 
 Kopieren Sie `generator.inx` und `generator.py` in das Verzeichnis
 `C:\Program files\Inkscape\share\extensions`
@@ -45,7 +45,7 @@ def Png_to_jpg(pngfile, jpgfile):
         'ImageMagick Converting Error')
 ```
 
-##GNU/Linux
+## GNU/Linux
 
 Kopieren Sie `generator.inx` und `generator.py` in das Verzeichnis
 `/usr/share/inkscape/extensions`
