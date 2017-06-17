@@ -78,7 +78,7 @@ enabled) or `&amp;` (with handling of special characters disabled).
 and `"` were replaced by an underscore if they appear in a column name. For
 example, when you have a column named "first name", you had to use
 `%VAR_first_name%` as placeholder. With this extension, no such replacement
-occures. Your have to use the placeholder `%VAR_first name`.
+occures. Your have to use the placeholder `%VAR_first name%`.
 
 * This one is only important if you used `generator.sh` not as an inkscape
 extension, but called it directly: In the bash script, there were some parameters
