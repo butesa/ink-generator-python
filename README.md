@@ -25,6 +25,11 @@ Copy `generator.inx` and `generator.py` to
 
 This extension needs Python 2.7, which is shipped with Inkscape 0.92.1 or later.
 
+The 64bit Windows version of Inkscape 0.92.1 has a bug which causes Inkscape to freeze
+when using this extension
+([#1659172](https://bugs.launchpad.net/inkscape/+bug/1659172)). If you
+experience problems with Inkscape freezing, please use the 32bit version.
+
 The following is **NOT** available on Windows:
 
 * Progress bar and cancel button during generation process

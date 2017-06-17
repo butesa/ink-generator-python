@@ -25,6 +25,11 @@ Kopieren Sie `generator.inx` und `generator.py` in das Verzeichnis
 Diese Erweiterung benötigt Python 2.7, welches ab Version 0.92.1 im
 Inkscape-Installer enthalten ist.
 
+Die 64bit-Windows-Version von Inkscape 0.92.1 hat einen Bug, der dazu führt, dass
+sich Inkscape bei Benutzung dieser Erweiterung aufhängt
+([#1659172](https://bugs.launchpad.net/inkscape/+bug/1659172)). Wenn Sie
+von diesem Problem betroffen sind, verwenden Sie stattdessen die 32bit-Version.
+
 Folgendes ist unter Windows **NICHT** verfügbar:
 
 * Fortschrittsbalken und Abbrechen-Schaltfäche während des Render-Vorgangs
