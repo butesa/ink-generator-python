@@ -3,7 +3,7 @@
 
 #   Generator-Python - a Inkscape extension to generate end-use files
 #   from a model
-#   Copyright (C) 2017 Johannes Matschke
+#   Copyright (C) 2020 Johannes Matschke
 #   Based on the Generator extension by Aurélio A. Heckert
 #
 #   This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
 #   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #   GNU General Public License for more details.
 
-#   Version 1.0
+#   Version 1.1
 
 import sys
 import os
@@ -27,7 +27,6 @@ import tempfile
 import shutil
 import argparse
 import csv
-import ctypes
 
 
 class SimpleObject:
@@ -43,6 +42,19 @@ class MyArgumentParser(argparse.ArgumentParser):
 
 def Is_executable(filename):
     return distutils.spawn.find_executable(filename) is not None
+
+
+def Call_no_output(args):
+    with open(os.devnull, 'w') as devnull:
+        return subprocess.call(args, stdout=devnull, stderr=devnull)
+
+
+def Call_or_die(args, error_title):
+    try:
+        return subprocess.check_output(
+            args, stderr=subprocess.STDOUT, universal_newlines=True, bufsize=0)
+    except subprocess.CalledProcessError as error:
+        Show_error_and_exit(error_title, error.output)
 
 
 if platform.system() != 'Windows' and Is_executable('zenity'):
@@ -63,7 +75,7 @@ if platform.system() != 'Windows' and Is_executable('zenity'):
                     '--auto-close',
                     '--width=400'
                 ], stdin=subprocess.PIPE, stdout=self.__devnull,
-                stderr=self.__devnull)
+                stderr=self.__devnull, universal_newlines=True, bufsize=0)
             self.__active = True
             return self
 
@@ -107,20 +119,29 @@ else:
 
 
 if platform.system() == 'Windows':
+    import ctypes
+
+    if sys.version_info.major == 2:
+        def WinMessageBox(message, title, flags):
+            return ctypes.windll.user32.MessageBoxA(0, message, title, flags)
+    else:
+        def WinMessageBox(message, title, flags):
+            return ctypes.windll.user32.MessageBoxW(0, message, title, flags)
+
     def Show_info(title, message):
         MB_ICONINFORMATION = 0x40
-        ctypes.windll.user32.MessageBoxA(0, message, title, MB_ICONINFORMATION)
+        WinMessageBox(message, title, MB_ICONINFORMATION)
 
     def Show_question(title, message):
         MB_ICONQUESTION = 0x20
         MB_YESNO = 0x4
         IDYES = 6
-        return ctypes.windll.user32.MessageBoxA(
-            0, message, title, MB_ICONQUESTION | MB_YESNO) == IDYES
+        return WinMessageBox(message, title, MB_ICONQUESTION | MB_YESNO) == \
+            IDYES
 
     def Show_error_and_exit(title, message):
         MB_ICONERROR = 0x10
-        ctypes.windll.user32.MessageBoxA(0, message, title, MB_ICONERROR)
+        WinMessageBox(message, title, MB_ICONERROR)
         sys.exit(1)
 
 elif Is_executable('zenity'):
@@ -176,8 +197,8 @@ def Get_command_line_arguments():
         '--preview', choices=['TRUE', 'FALSE'], default='FALSE', type=str.upper,
         help='Preview (only first page)')
     parser.add_argument(
-        '--specialchars', choices=['TRUE', 'FALSE'], default='TRUE', type=str.upper,
-        help='Handle special XML characters')
+        '--specialchars', choices=['TRUE', 'FALSE'], default='TRUE',
+        type=str.upper, help='Handle special XML characters')
     parser.add_argument('infile', help='SVG input file')
 
     args = parser.parse_known_args()[0]
@@ -194,7 +215,7 @@ def Generate(replacements):
 
     tmp_svg = os.path.join(globaldata.tempdir, 'temp.svg')
 
-    with open(tmp_svg, 'wb') as f:
+    with open(tmp_svg, 'w') as f:
         f.write(template)
 
     if globaldata.args.format == 'SVG':
@@ -209,17 +230,30 @@ def Generate(replacements):
     return destfile
 
 
-def Ink_render(infile, outfile, format):
-    Call_or_die(
-        [
-            'inkscape',
-            '--without-gui',
-            '--export-{0}={1}'.format(
-                format.lower(), outfile),
-            '--export-dpi={0}'.format(globaldata.args.dpi),
-            infile
-        ],
-        'Inkscape Converting Error')
+if Call_or_die(['inkscape', '--version'], 'Inkscape Version Error')[:10] == \
+        'Inkscape 0':
+    # Inkscape 0.9x
+    def Ink_render(infile, outfile, format):
+        Call_or_die(
+            [
+                'inkscape',
+                '--export-{0}={1}'.format(format.lower(), outfile),
+                '--export-dpi={0}'.format(globaldata.args.dpi),
+                infile
+            ],
+            'Inkscape Converting Error')
+else:
+    # Inkscape 1.x
+    def Ink_render(infile, outfile, format):
+        Call_or_die(
+            [
+                'inkscape',
+                '--export-type={0}'.format(format.lower()),
+                '--export-filename={0}'.format(outfile),
+                '--export-dpi={0}'.format(globaldata.args.dpi),
+                infile
+            ],
+            'Inkscape Converting Error')
 
 
 def Png_to_jpg(pngfile, jpgfile):
@@ -284,18 +318,6 @@ def Open_file_viewer(filename):
             '"xdg-open" is not installed.')
 
 
-def Call_no_output(args):
-    with open(os.devnull, 'w') as devnull:
-        return subprocess.call(args, stdout=devnull, stderr=devnull)
-
-
-def Call_or_die(args, error_title):
-    try:
-        subprocess.check_output(args, stderr=subprocess.STDOUT)
-    except subprocess.CalledProcessError as error:
-        Show_error_and_exit(error_title, error.output)
-
-
 def Process_csv_file(csvfile):
     if globaldata.args.vartype == 'COLUMN':
         csvdata = [[(str(x), y) for x, y in enumerate(row, start=1)]
@@ -331,9 +353,10 @@ def Process_csv_file(csvfile):
                 progress.Set_percent(num * 100 / count)
 
 
+globaldata = SimpleObject()
+globaldata.args = Get_command_line_arguments()
+
 try:
-    globaldata = SimpleObject()
-    globaldata.args = Get_command_line_arguments()
     globaldata.tempdir = tempfile.mkdtemp()
 
     if not os.path.isfile(globaldata.args.datafile):
@@ -346,7 +369,7 @@ try:
         if Show_question(
                 'Output file extension',
                 'Your output pattern has a file extension '
-                'diferent from the export format.\n\nDo you want to '
+                'different from the export format.\n\nDo you want to '
                 'add the file extension?'):
             globaldata.args.output += '.' + \
                 globaldata.args.format.lower()
@@ -355,10 +378,10 @@ try:
     if outdir != '' and not os.path.exists(outdir):
         os.makedirs(outdir)
 
-    with open(globaldata.args.infile, 'rb') as f:
+    with open(globaldata.args.infile, 'r') as f:
         globaldata.template = f.read()
 
-    with open(globaldata.args.datafile, 'rb') as csvfile:
+    with open(globaldata.args.datafile, 'r') as csvfile:
         Process_csv_file(csvfile)
 
 finally:

@@ -23,7 +23,7 @@
   <param name="sep" type="description">•••••••••••••••••••••••••••••••••••••••••••••••••••••••••</param>
 
   <param name="datafile" type="string" _gui-text="Data file:"></param>
-  <_param name="extraVarInfo" type="description">The data file must be a CSV with comma separated columns</_param>
+  <_param name="extraVarInfo" type="description">The data file must be an UTF-8 CSV file with comma separated columns</_param>
 
   <param name="sep" type="description">•••••••••••••••••••••••••••••••••••••••••••••••••••••••••</param>
 
@@ -38,7 +38,7 @@
   </param>
   <param name="dpi" type="string" _gui-text="DPI (for PNG and JPG):">90</param>
   <param name="output" type="string" _gui-text="Output pattern:">$HOME/generator-output/%VAR_1%.pdf</param>
-  <param name="preview" type="boolean" _gui-text="Preview (make and show only the frist register)"></param>
+  <param name="preview" type="boolean" _gui-text="Preview (make and show only the first register)"></param>
 
     </page>
     <page name="tabB" _gui-text="Help">

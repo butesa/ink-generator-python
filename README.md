@@ -18,17 +18,19 @@ comes to characters like `,` or `"`.
 ## Windows
 
 Copy `generator.inx` and `generator.py` to
-`C:\Program files\Inkscape\share\extensions`
-(global installation) or
-`C:\Users\<Username>\Application Data\Roaming\inkscape\share\extension`
-(single user installation).
+`C:\Program files\Inkscape\share\extensions` (global installation 64 bit),
+`C:\Program files (x86)\Inkscape\share\extensions` (global installation 32 bit)
+or `C:\Users\<Username>\AppData\Roaming\inkscape\extension` (single user
+installation).
 
 This extension needs Python 2.7, which is shipped with Inkscape 0.92.1 or later.
+It also works with Python 3, which is shipped with Inkscape 1.0 or later.
 
-The 64bit Windows version of Inkscape 0.92.1 has a bug which causes Inkscape to freeze
-when using this extension
+The 64bit Windows version of Inkscape 0.92.1 has a bug which causes Inkscape to
+freeze when using this extension
 ([#1659172](https://bugs.launchpad.net/inkscape/+bug/1659172)). If you
-experience problems with Inkscape freezing, please use the 32bit version.
+experience problems with Inkscape freezing, please use the 32bit version or a
+newer version (0.92.2 or later).
 
 The following is **NOT** available on Windows:
 
@@ -60,7 +62,7 @@ Copy `generator.inx` and `generator.py` to
 
 The following software is requires:
 
-* Python 2.7
+* Python 2.7 or Python 3
 * Zenity (for better user interaction, the script will work without it)
 * Convert (from the ImageMagick suite, for JPEG export)
 

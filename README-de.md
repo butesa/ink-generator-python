@@ -17,18 +17,21 @@ Probleme mit dem Parsen von CSV-Dateien.
 ## Windows
 
 Kopieren Sie `generator.inx` und `generator.py` in das Verzeichnis
-`C:\Program files\Inkscape\share\extensions`
-(globale Installation) oder in das Verzeichnis
-`C:\Users\<Username>\Application Data\Roaming\inkscape\share\extension`
-(Installation für einzelnen Nutzer).
+`C:\Programme\Inkscape\share\extensions` (globale Installation 64 bit), in das
+Verzeichnis `C:\Programme (x86)\Inkscape\share\extensions` (globale Installation
+32 bit) oder in das Verzeichnis
+`C:\Users\<Username>\AppData\Roaming\inkscape\extension` (Installation für
+einzelnen Nutzer).
 
 Diese Erweiterung benötigt Python 2.7, welches ab Version 0.92.1 im
-Inkscape-Installer enthalten ist.
+Inkscape-Installer enthalten ist. Python 3 kann ebenfalls verwendet werden,
+dieses ist ab Version 1.0 im Inkscape-Installer enthalten.
 
-Die 64bit-Windows-Version von Inkscape 0.92.1 hat einen Bug, der dazu führt, dass
-sich Inkscape bei Benutzung dieser Erweiterung aufhängt
+Die 64bit-Windows-Version von Inkscape 0.92.1 hat einen Bug, der dazu führt,
+dass sich Inkscape bei Benutzung dieser Erweiterung aufhängt
 ([#1659172](https://bugs.launchpad.net/inkscape/+bug/1659172)). Wenn Sie
-von diesem Problem betroffen sind, verwenden Sie stattdessen die 32bit-Version.
+von diesem Problem betroffen sind, verwenden Sie stattdessen die 32bit-Version
+oder eine neuere Version (0.92.2 oder später).
 
 Folgendes ist unter Windows **NICHT** verfügbar:
 
@@ -60,7 +63,7 @@ Kopieren Sie `generator.inx` und `generator.py` in das Verzeichnis
 
 Folgende Software wird benötigt:
 
-* Python 2.7
+* Python 2.7 oder Python 3
 * Zenity (für besser Benutzer-Interaktion, grundsätzlich funktioniert die
 Erweiterung auch ohne Zenity)
 * Convert (Aus der ImageMagick-Suite, für den Export ins JPEG-Format)
