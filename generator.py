@@ -215,7 +215,7 @@ def Generate(replacements):
 
     tmp_svg = os.path.join(globaldata.tempdir, 'temp.svg')
 
-    with open(tmp_svg, 'w') as f:
+    with open(tmp_svg, 'w', encoding='utf-8') as f:
         f.write(template)
 
     if globaldata.args.format == 'SVG':
@@ -378,10 +378,10 @@ try:
     if outdir != '' and not os.path.exists(outdir):
         os.makedirs(outdir)
 
-    with open(globaldata.args.infile, 'r') as f:
+    with open(globaldata.args.infile, 'r', encoding='utf-8') as f:
         globaldata.template = f.read()
 
-    with open(globaldata.args.datafile, 'r') as csvfile:
+    with open(globaldata.args.datafile, 'r', encoding='utf-8') as csvfile:
         Process_csv_file(csvfile)
 
 finally:
